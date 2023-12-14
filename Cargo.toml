@@ -1,0 +1,8 @@
+[workspace]
+name = "open_gate"
+version = "0.1.0"
+authors = ["Eman Herawy <eman.herawy@gmail.com>"]
+edition = "2021"
+members = [
+  "dao_token",
+]

@@ -3,18 +3,20 @@
 #[openbrush::implementation(Ownable)]
 #[openbrush::contract]
 mod registration {
+    use core::fmt::Error;
+    
     use ink::{storage::Mapping };
     use openbrush::{modifiers, traits::Storage};
-    use dao_token::dao_token::{DaoToken, DaoTokenRef};
-
+ use dao_token::dao_token::tokentrait_external::TokenTrait;
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
     #[derive( Storage)]
     pub struct Registration {
+ 
         /// Stores a single `bool` value on the storage.
-        dao_token: DaoTokenRef,
+        dao_token: ink::contract_ref!(TokenTrait),
         #[storage_field]
         ownable: ownable::Data,
         treasury_wallet: Option<AccountId>,
@@ -63,9 +65,9 @@ mod registration {
             self.address_to_github.get(&address).unwrap_or_default()
         }
         #[ink(message)]
-        pub fn get_address(&self, github: String) -> AccountId {
-            self.github_to_address.get(&github).unwrap_or_default()
-        }
+        pub fn get_address(&self, github: String) -> Option<AccountId> {
+            self.github_to_address.get(&github)
+               }
         #[ink(message)]
         pub fn get_registrated_time(&self, address: AccountId) -> u64 {
             self.creator_registrated_time.get(&address).unwrap_or_default()
@@ -81,10 +83,10 @@ mod registration {
              self.treasury_wallet = Some(wallet);
         }
 
-        #[ink(message)]
-        pub fn get_dao_token(&self) -> DaoTokenRef {
-            self.dao_token.clone()
-        }
+        // #[ink(message)]
+        // pub fn get_dao_token(&self) -> DaoTokenRef {
+        //     self.dao_token.clone()
+        // }
         #[ink(message)]
         pub fn is_project_creator_registered (&self, address: AccountId) -> bool {
             self.address_to_github.get(&address).is_some()
@@ -113,21 +115,21 @@ mod registration {
         /// Imports all the definitions from the outer scope so we can use them here.
         use super::*;
 
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let registration = Registration::default();
-            assert_eq!(registration.get(), false);
-        }
+        // We test if the default constructor does its job.
+        // #[ink::test]
+        // fn default_works() {
+        //     let registration = Registration::default();
+        //     assert_eq!(registration.get(), false);
+        // }
 
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut registration = Registration::new(false);
-            assert_eq!(registration.get(), false);
-            registration.flip();
-            assert_eq!(registration.get(), true);
-        }
+        // /// We test a simple use case of our contract.
+        // #[ink::test]
+        // fn it_works() {
+        //     let mut registration = Registration::new(false);
+        //     assert_eq!(registration.get(), false);
+        //     registration.flip();
+        //     assert_eq!(registration.get(), true);
+        // }
     }
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.

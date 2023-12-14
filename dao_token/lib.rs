@@ -36,22 +36,18 @@ pub mod dao_token {
 
         /// Transfers `value` amount of tokens from the caller's account to account `to`.
         #[ink(message)]
-        fn transfer(&mut self, to: AccountId, value: Balance) ;
+        fn transfer(&mut self, to: AccountId, value: Balance);
 
         /// Allows `spender` to withdraw from the caller's account multiple times, up to
         /// the `value` amount.
         #[ink(message)]
-        fn approve(&mut self, spender: AccountId, value: Balance)  ;
-
+        fn approve(&mut self, spender: AccountId, value: Balance);
+        // mint
+        #[ink(message)]
+        fn mint(&mut self, to: AccountId, value: Balance);
         /// Transfers `value` tokens on the behalf of `from` to the account `to`.
         #[ink(message)]
-        fn transfer_from(
-            &mut self,
-            from: AccountId,
-            to: AccountId,
-            value: Balance,
-        ) ;
-
+        fn transfer_from(&mut self, from: AccountId, to: AccountId, value: Balance);
     }
     impl DaoToken {
         #[ink(constructor)]
@@ -73,7 +69,11 @@ pub mod dao_token {
         /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Some(String::from("DaoToken")), Some(String::from("DAO")), 18)
+            Self::new(
+                Some(String::from("DaoToken")),
+                Some(String::from("DAO")),
+                18,
+            )
         }
     }
 }

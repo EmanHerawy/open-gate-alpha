@@ -2,19 +2,18 @@
 
 #[openbrush::implementation(Ownable)]
 #[openbrush::contract]
-mod registration {
+pub mod registration {
     use core::fmt::Error;
-     use ink::codegen::StaticEnv;
-    use ink::{storage::Mapping };
+    use dao_token::dao_token::tokentrait_external::TokenTrait;
+    use ink::codegen::StaticEnv;
+    use ink::storage::Mapping;
     use openbrush::{modifiers, traits::Storage};
- use dao_token::dao_token::tokentrait_external::TokenTrait;
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    #[derive( Storage)]
+    #[derive(Storage)]
     pub struct Registration {
- 
         /// Stores a single `bool` value on the storage.
         dao_token: ink::contract_ref!(TokenTrait),
         #[storage_field]
@@ -25,79 +24,73 @@ mod registration {
         creator_registrated_time: Mapping<AccountId, u64>,
     }
     #[ink::trait_definition]
-   pub trait RegistrationTrait {
-   
-       #[ink(message)]
-       fn join_as_contributor(&mut self, github: String);
+    pub trait RegistrationTrait {
+        #[ink(message)]
+        fn join_as_contributor(&mut self, github: String);
 
         #[ink(message)]
-         fn join_as_open_source_project_creator(&mut self, github: String);
-        # [ink(message)]
-         fn get_github(&self, address: AccountId) -> String ;
+        fn join_as_open_source_project_creator(&mut self, github: String);
         #[ink(message)]
-         fn get_address(&self, github: String) -> Option<AccountId> ;
+        fn get_github(&self, address: AccountId) -> String;
         #[ink(message)]
-         fn get_registrated_time(&self, address: AccountId) -> u64 ;
+        fn get_address(&self, github: String) -> Option<AccountId>;
         #[ink(message)]
-         fn get_treasury_wallet(&self) -> Option<AccountId> ;
+        fn get_registrated_time(&self, address: AccountId) -> u64;
+        #[ink(message)]
+        fn get_treasury_wallet(&self) -> Option<AccountId>;
         // #[ink(message)]
         //  fn set_treasury_wallet(&mut self, wallet: AccountId);
-  
-        #[ink(message)]
-         fn is_project_creator_registered (&self, address: AccountId) -> bool ;
 
-     
+        #[ink(message)]
+        fn is_project_creator_registered(&self, address: AccountId) -> bool;
     }
 
     impl RegistrationTrait for Registration {
-    
-
-      #[ink(message)]
+        #[ink(message)]
         fn join_as_contributor(&mut self, github: String) {
-          let caller = Self::env().caller();
-          self.github_to_address.insert(github.clone(), &caller);
-          self.address_to_github.insert(caller, &github);
-          self.creator_registrated_time.insert(caller, &Self::env().block_timestamp());
+            let caller = Self::env().caller();
+            self.github_to_address.insert(github.clone(), &caller);
+            self.address_to_github.insert(caller, &github);
+            self.creator_registrated_time
+                .insert(caller, &Self::env().block_timestamp());
         }
-
 
         #[ink(message)]
-          fn join_as_open_source_project_creator(&mut self, github: String) {
+        fn join_as_open_source_project_creator(&mut self, github: String) {
             let caller = Self::env().caller();
             // check that the OS has enough tokens
-              let balance = self.dao_token.balance_of( caller);
-                if balance < 1000 {
-                    panic!("Not enough tokens to register as a project creator");
-                }
-              self.github_to_address.insert(github.clone(), &caller);
+            let balance = self.dao_token.balance_of(caller);
+            if balance < 1000 {
+                panic!("Not enough tokens to register as a project creator");
+            }
+            self.github_to_address.insert(github.clone(), &caller);
             self.address_to_github.insert(caller, &github);
-            self.creator_registrated_time.insert(caller, &Self::env().block_timestamp());
+            self.creator_registrated_time
+                .insert(caller, &Self::env().block_timestamp());
         }
-        # [ink(message)]
-          fn get_github(&self, address: AccountId) -> String {
+        #[ink(message)]
+        fn get_github(&self, address: AccountId) -> String {
             self.address_to_github.get(&address).unwrap_or_default()
         }
         #[ink(message)]
-          fn get_address(&self, github: String) -> Option<AccountId> {
+        fn get_address(&self, github: String) -> Option<AccountId> {
             self.github_to_address.get(&github)
-               }
-        #[ink(message)]
-          fn get_registrated_time(&self, address: AccountId) -> u64 {
-            self.creator_registrated_time.get(&address).unwrap_or_default()
         }
         #[ink(message)]
-          fn get_treasury_wallet(&self) -> Option<AccountId> {
+        fn get_registrated_time(&self, address: AccountId) -> u64 {
+            self.creator_registrated_time
+                .get(&address)
+                .unwrap_or_default()
+        }
+        #[ink(message)]
+        fn get_treasury_wallet(&self) -> Option<AccountId> {
             self.treasury_wallet
         }
-        
 
-  
         #[ink(message)]
-          fn is_project_creator_registered (&self, address: AccountId) -> bool {
+        fn is_project_creator_registered(&self, address: AccountId) -> bool {
             self.address_to_github.get(&address).is_some()
         }
-
-     
     }
     impl Registration {
         /// Constructor that initializes the `bool` value to the given `init_value`.
@@ -114,10 +107,9 @@ mod registration {
                     // let token = DaoToken::new(None, None, 18);
                     // instance.dao_token = ink::contract_ref!(token);
                 }
-                
             }
-               instance.treasury_wallet = wallet;
-             instance
+            instance.treasury_wallet = wallet;
+            instance
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -125,9 +117,8 @@ mod registration {
         /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(  None, None)
+            Self::new(None, None)
         }
-    
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`

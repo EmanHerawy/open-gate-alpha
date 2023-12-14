@@ -2,6 +2,34 @@
 
 #[ink::contract]
 mod contribution_pool {
+    use dao_token::dao_token::tokentrait_external::TokenTrait;
+    use ink::storage::Mapping;
+    use registration::registration::registrationtrait_external::RegistrationTrait;
+
+    #[derive(scale::Decode, scale::Encode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+    )]
+    pub struct Listing {
+        listing_id: u64,
+        github_repo: String,
+        current_deposit: u128,
+        payable_amount: u64,
+    }
+    #[ink::trait_definition]
+    pub trait ContributionPoolTrait {
+        #[ink(message)]
+        #[ink(payable)]
+        fn list_repo(&mut self, github_repo: String, payable_amount: u64);
+        #[ink(message)]
+        fn claim(&mut self, repo: String, pr: String);
+        #[ink(message)]
+        fn finalize_claim(&mut self, login: String, github_issue: String, amount: u128);
+    }
+    /// Defines the storage of your contract.
+    /// Add new fields to the below struct in order
+    /// to add new static storage fields to your contract.
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
@@ -9,134 +37,121 @@ mod contribution_pool {
     #[ink(storage)]
     pub struct ContributionPool {
         /// Stores a single `bool` value on the storage.
-        value: bool,
+        registration_contract: Option<ink::contract_ref!(RegistrationTrait)>, //* */
+        token: Option<ink::contract_ref!(TokenTrait)>, //* */
+        assigned_req_id: u64,                          //* */
+        counter: u64,                                  //* */
+        creator_listings: Mapping<AccountId, Listing>, //* */
+        github_to_creator_address: Mapping<String, AccountId>, ////* */
+        running_claims: Mapping<u64, AccountId>,       //* */
+        request_id_to_creator: Mapping<u64, AccountId>, //* */
+        request_id_to_pr_url: Mapping<u64, String>,    //* */
+        request_id_to_listing_id: Mapping<u64, u64>,   //* */
+        used_requests: Mapping<String, bool>,          //* */
+                                                       // listing_id_to_creator: Mapping<u64, AccountId>,//
     }
 
-    impl ContributionPool {
-        /// Constructor that initializes the `bool` value to the given `init_value`.
-        #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+    impl ContributionPoolTrait for ContributionPool {
+        #[ink(message)]
+        #[ink(payable)]
+        fn list_repo(&mut self, github_repo: String, payable_amount: u64) {
+            let caller = Self::env().caller();
+            // check if caller is registered
+            let is_registered = self
+                .registration_contract
+                .clone()
+                .unwrap()
+                .is_project_creator_registered(caller);
+            assert!(is_registered);
+            // check if money is transferred is more than 1000
+            let _transferred = self.env().transferred_value();
+            assert!(_transferred >= 10000);
+
+            let listing = Listing {
+                listing_id: self.counter,
+                github_repo: github_repo.clone(),
+                current_deposit: _transferred,
+                payable_amount: payable_amount,
+            };
+            self.creator_listings.insert(caller, &listing);
+            // self.listing_id_to_creator
+            //     .insert(self.counter, &Self::env().caller());
+            self.counter += 1;
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
+        #[ink(message)]
+        fn claim(&mut self, repo: String, pr: String) {
+            let caller = Self::env().caller();
+            let listing = self.creator_listings.get(&caller).unwrap();
+            // make sure that the remaining amount is more than the requested amount
+            assert!(listing.current_deposit >= u128::from(listing.payable_amount));
+            let creator_address = self
+                .registration_contract
+                .clone()
+                .unwrap()
+                .get_address(repo)
+                .unwrap();
+            let request_id = self.assigned_req_id;
+            self.assigned_req_id += 1;
+            self.running_claims.insert(request_id, &caller);
+            self.request_id_to_creator
+                .insert(request_id, &creator_address);
+            self.request_id_to_pr_url.insert(request_id, &pr);
+            self.request_id_to_listing_id
+                .insert(request_id, &listing.listing_id);
+        }
+
+        /** */
+        #[ink(message)]
+        fn finalize_claim(&mut self, login: String, github_issue: String, amount: u128) {
+            let caller = Self::env().caller();
+            let listing = self.creator_listings.get(&caller).unwrap();
+            //get address of github handle
+            let dev_address = self
+                .registration_contract
+                .clone()
+                .unwrap()
+                .get_address(login)
+                .unwrap();
+            // make sure that the remaining amount is more than the requested amount
+            assert!(listing.current_deposit >= u128::from(listing.payable_amount));
+            // make the github issue as done
+            self.used_requests.insert(github_issue, &true);
+            // mint token
+            self.token.clone().unwrap().mint(dev_address, 1);
+            // relase payment
+            self.env().transfer(caller, amount).unwrap()
+        }
+    }
+    impl ContributionPool {
+        /// Constructor that initializes the `bool` value to the given `init_value`.
+        // #[ink(constructor)]
+        pub fn new(registeration_contract_id: AccountId, token_id: AccountId) -> Self {
+            let mut instance = Self::default();
+            instance.registration_contract = Some(registeration_contract_id.into());
+            instance.token = Some(token_id.into());
+            instance
+        }
+
+        // /// Constructor that initializes the `bool` value to `false`.
+        // ///
         /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Default::default())
-        }
-
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
-        }
-    }
-
-    /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
-    /// module and test functions are marked with a `#[test]` attribute.
-    /// The below code is technically just normal Rust code.
-    #[cfg(test)]
-    mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let contribution_pool = ContributionPool::default();
-            assert_eq!(contribution_pool.get(), false);
-        }
-
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut contribution_pool = ContributionPool::new(false);
-            assert_eq!(contribution_pool.get(), false);
-            contribution_pool.flip();
-            assert_eq!(contribution_pool.get(), true);
-        }
-    }
-
-
-    /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
-    ///
-    /// When running these you need to make sure that you:
-    /// - Compile the tests with the `e2e-tests` feature flag enabled (`--features e2e-tests`)
-    /// - Are running a Substrate node which contains `pallet-contracts` in the background
-    #[cfg(all(test, feature = "e2e-tests"))]
-    mod e2e_tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// A helper function used for calling contract messages.
-        use ink_e2e::build_message;
-
-        /// The End-to-End test `Result` type.
-        type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-        /// We test that we can upload and instantiate the contract using its default constructor.
-        #[ink_e2e::test]
-        async fn default_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // Given
-            let constructor = ContributionPoolRef::default();
-
-            // When
-            let contract_account_id = client
-                .instantiate("contribution_pool", &ink_e2e::alice(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
-            // Then
-            let get = build_message::<ContributionPoolRef>(contract_account_id.clone())
-                .call(|contribution_pool| contribution_pool.get());
-            let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), false));
-
-            Ok(())
-        }
-
-        /// We test that we can read and write a value from the on-chain contract contract.
-        #[ink_e2e::test]
-        async fn it_works(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
-            // Given
-            let constructor = ContributionPoolRef::new(false);
-            let contract_account_id = client
-                .instantiate("contribution_pool", &ink_e2e::bob(), constructor, 0, None)
-                .await
-                .expect("instantiate failed")
-                .account_id;
-
-            let get = build_message::<ContributionPoolRef>(contract_account_id.clone())
-                .call(|contribution_pool| contribution_pool.get());
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), false));
-
-            // When
-            let flip = build_message::<ContributionPoolRef>(contract_account_id.clone())
-                .call(|contribution_pool| contribution_pool.flip());
-            let _flip_result = client
-                .call(&ink_e2e::bob(), flip, 0, None)
-                .await
-                .expect("flip failed");
-
-            // Then
-            let get = build_message::<ContributionPoolRef>(contract_account_id.clone())
-                .call(|contribution_pool| contribution_pool.get());
-            let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
-            assert!(matches!(get_result.return_value(), true));
-
-            Ok(())
+            Self {
+                registration_contract: None,
+                token: None,
+                assigned_req_id: 0,
+                counter: 0,
+                creator_listings: Mapping::new(),
+                running_claims: Mapping::new(),
+                request_id_to_creator: Mapping::new(),
+                request_id_to_listing_id: Mapping::new(),
+                request_id_to_pr_url: Mapping::new(),
+                used_requests: Mapping::new(),
+                github_to_creator_address: Mapping::new(),
+                // listing_id_to_creator: Mapping::new(),
+            }
         }
     }
 }

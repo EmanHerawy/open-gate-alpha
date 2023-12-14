@@ -1,22 +1,36 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
-#[ink::contract]
+#[openbrush::implementation(Ownable)]
+#[openbrush::contract]
 mod registration {
+    use ink::{storage::Mapping };
+    use openbrush::{modifiers, traits::Storage};
+    use dao_token::dao_token::{DaoToken, DaoTokenRef};
 
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
+    #[derive( Storage)]
     pub struct Registration {
         /// Stores a single `bool` value on the storage.
-        value: bool,
+        dao_token: DaoTokenRef,
+        #[storage_field]
+        ownable: ownable::Data,
+        treasury_wallet: Option<AccountId>,
+        github_to_address: Mapping<String, AccountId>,
+        address_to_github: Mapping<AccountId, String>,
+        creator_registrated_time: Mapping<AccountId, u64>,
     }
 
     impl Registration {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
-            Self { value: init_value }
+        pub fn new(wallet: AccountId) -> Self {
+            let mut instance = Self::default();
+            ownable::Internal::_init_with_owner(&mut instance, Self::env().caller());
+             instance.treasury_wallet = Some(wallet);
+             instance
         }
 
         /// Constructor that initializes the `bool` value to `false`.
@@ -24,22 +38,71 @@ mod registration {
         /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Default::default())
+            Self::new( AccountId::from([0x0; 32]))
         }
 
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
-        #[ink(message)]
-        pub fn flip(&mut self) {
-            self.value = !self.value;
+      #[ink(message)]
+      pub fn join_as_contributor(&mut self, github: String) {
+          let caller = Self::env().caller();
+          self.github_to_address.insert(github.clone(), &caller);
+          self.address_to_github.insert(caller, &github);
+          self.creator_registrated_time.insert(caller, &Self::env().block_timestamp());
         }
 
-        /// Simply returns the current value of our `bool`.
+
         #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
+        pub fn join_as_open_source_project_creator(&mut self, github: String) {
+            let caller = Self::env().caller();
+            // check that the OS has enough tokens
+            // let balance = DaoToken::Data::psp22::balance_of(&self.dao_token, caller);            self.github_to_address.insert(github.clone(), &caller);
+            self.address_to_github.insert(caller, &github);
+            self.creator_registrated_time.insert(caller, &Self::env().block_timestamp());
         }
+        # [ink(message)]
+        pub fn get_github(&self, address: AccountId) -> String {
+            self.address_to_github.get(&address).unwrap_or_default()
+        }
+        #[ink(message)]
+        pub fn get_address(&self, github: String) -> AccountId {
+            self.github_to_address.get(&github).unwrap_or_default()
+        }
+        #[ink(message)]
+        pub fn get_registrated_time(&self, address: AccountId) -> u64 {
+            self.creator_registrated_time.get(&address).unwrap_or_default()
+        }
+        #[ink(message)]
+        pub fn get_treasury_wallet(&self) -> Option<AccountId> {
+            self.treasury_wallet
+        }
+        #[ink(message)]
+        pub fn set_treasury_wallet(&mut self, wallet: AccountId) {
+            // check that the caller is the owner
+            let caller = Self::env().caller();
+             self.treasury_wallet = Some(wallet);
+        }
+
+        #[ink(message)]
+        pub fn get_dao_token(&self) -> DaoTokenRef {
+            self.dao_token.clone()
+        }
+        #[ink(message)]
+        pub fn is_project_creator_registered (&self, address: AccountId) -> bool {
+            self.address_to_github.get(&address).is_some()
+        }
+
+        // /// A message that can be called on instantiated contracts.
+        // /// This one flips the value of the stored `bool` from `true`
+        // /// to `false` and vice versa.
+        // #[ink(message)]
+        // pub fn flip(&mut self) {
+        //     self.value = !self.value;
+        // }
+
+        // /// Simply returns the current value of our `bool`.
+        // #[ink(message)]
+        // pub fn get(&self) -> bool {
+        //     self.value
+        // }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -66,7 +129,6 @@ mod registration {
             assert_eq!(registration.get(), true);
         }
     }
-
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///

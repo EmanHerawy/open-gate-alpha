@@ -3,8 +3,9 @@
 #[openbrush::implementation(Ownable)]
 #[openbrush::contract]
 pub mod registration {
-    use core::fmt::Error;
-    use dao_token::dao_token::tokentrait_external::TokenTrait;
+    use openbrush::*;
+use openbrush::traits::String;   
+ use dao_token::dao_token::*;
     use ink::codegen::StaticEnv;
     use ink::storage::Mapping;
     use openbrush::{modifiers, traits::Storage};
@@ -15,7 +16,7 @@ pub mod registration {
     #[derive(Storage)]
     pub struct Registration {
         /// Stores a single `bool` value on the storage.
-        dao_token: ink::contract_ref!(TokenTrait),
+        dao_token: AccountId,
         #[storage_field]
         ownable: ownable::Data,
         treasury_wallet: Option<AccountId>,
@@ -23,7 +24,7 @@ pub mod registration {
         address_to_github: Mapping<AccountId, String>,
         creator_registrated_time: Mapping<AccountId, u64>,
     }
-    #[ink::trait_definition]
+    #[openbrush::trait_definition]
     pub trait RegistrationTrait {
         #[ink(message)]
         fn join_as_contributor(&mut self, github: String);
@@ -45,6 +46,9 @@ pub mod registration {
         fn is_project_creator_registered(&self, address: AccountId) -> bool;
     }
 
+    #[openbrush::wrapper]
+pub type RegistrationContractRef = dyn RegistrationTrait + Ownable;
+
     impl RegistrationTrait for Registration {
         #[ink(message)]
         fn join_as_contributor(&mut self, github: String) {
@@ -59,7 +63,7 @@ pub mod registration {
         fn join_as_open_source_project_creator(&mut self, github: String) {
             let caller = Self::env().caller();
             // check that the OS has enough tokens
-            let balance = self.dao_token.balance_of(caller);
+            let balance = DaoRef::balance_of(&self.dao_token,caller);
             if balance < 1000 {
                 panic!("Not enough tokens to register as a project creator");
             }

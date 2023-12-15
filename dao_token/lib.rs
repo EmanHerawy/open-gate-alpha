@@ -4,7 +4,6 @@
 #[openbrush::contract]
 pub mod dao_token {
     use openbrush::traits::Storage;
-
     #[ink(storage)]
     #[derive(Default, Storage)]
     pub struct DaoToken {
@@ -17,6 +16,10 @@ pub mod dao_token {
     }
     const MINTER: RoleType = ink::selector_id!("MINTER");
     const MANAGER: RoleType = ink::selector_id!("MANAGER");
+
+#[openbrush::wrapper]
+pub type DaoRef = dyn  PSP22 + PSP22Mintable +  PSP22Metadata + AccessControl;
+
     #[default_impl(PSP20Mintable)]
     #[modifiers(only_role(MINTER))]
     fn mint() {}

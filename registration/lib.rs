@@ -3,12 +3,11 @@
 #[openbrush::implementation(Ownable)]
 #[openbrush::contract]
 pub mod registration {
-    use openbrush::*;
-use openbrush::traits::String;   
+ use openbrush::traits::String;   
  use dao_token::dao_token::*;
     use ink::codegen::StaticEnv;
     use ink::storage::Mapping;
-    use openbrush::{modifiers, traits::Storage};
+    use openbrush::{ traits::Storage};
     /// Defines the storage of your contract.
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.

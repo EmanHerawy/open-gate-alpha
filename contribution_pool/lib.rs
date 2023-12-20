@@ -2,9 +2,11 @@
 
 #[ink::contract]
 mod contribution_pool {
-    use dao_token::dao_token::tokentrait_external::TokenTrait;
+
+    use dao_token::dao_token::*;
     use ink::storage::Mapping;
-    use registration::registration::registrationtrait_external::RegistrationTrait;
+    use registration::registration::*;
+use ink::prelude::string::String;  
 
     #[derive(scale::Decode, scale::Encode)]
     #[cfg_attr(
@@ -37,8 +39,8 @@ mod contribution_pool {
     #[ink(storage)]
     pub struct ContributionPool {
         /// Stores a single `bool` value on the storage.
-        registration_contract: Option<ink::contract_ref!(RegistrationTrait)>, //* */
-        token: Option<ink::contract_ref!(TokenTrait)>, //* */
+       registration_contract: AccountId, //* */
+        token:  AccountId, //* */
         assigned_req_id: u64,                          //* */
         counter: u64,                                  //* */
         creator_listings: Mapping<AccountId, Listing>, //* */
@@ -57,11 +59,9 @@ mod contribution_pool {
         fn list_repo(&mut self, github_repo: String, payable_amount: u64) {
             let caller = Self::env().caller();
             // check if caller is registered
-            let is_registered = self
-                .registration_contract
-                .clone()
-                .unwrap()
-                .is_project_creator_registered(caller);
+            let is_registered =RegistrationContractRef::is_project_creator_registered(&self.registration_contract,caller);
+            
+ 
             assert!(is_registered);
             // check if money is transferred is more than 1000
             let _transferred = self.env().transferred_value();
@@ -85,12 +85,8 @@ mod contribution_pool {
             let listing = self.creator_listings.get(&caller).unwrap();
             // make sure that the remaining amount is more than the requested amount
             assert!(listing.current_deposit >= u128::from(listing.payable_amount));
-            let creator_address = self
-                .registration_contract
-                .clone()
-                .unwrap()
-                .get_address(repo)
-                .unwrap();
+            let creator_address = RegistrationContractRef::get_address(&self.registration_contract, repo).unwrap();
+          
             let request_id = self.assigned_req_id;
             self.assigned_req_id += 1;
             self.running_claims.insert(request_id, &caller);
@@ -107,19 +103,17 @@ mod contribution_pool {
             let caller = Self::env().caller();
             let listing = self.creator_listings.get(&caller).unwrap();
             //get address of github handle
-            let dev_address = self
-                .registration_contract
-                .clone()
-                .unwrap()
-                .get_address(login)
-                .unwrap();
+            let dev_address = RegistrationContractRef::get_address(&self.registration_contract, login).unwrap();
             // make sure that the remaining amount is more than the requested amount
             assert!(listing.current_deposit >= u128::from(listing.payable_amount));
             // make the github issue as done
             self.used_requests.insert(github_issue, &true);
             // mint token
-            self.token.clone().unwrap().mint(dev_address, 1);
-            // relase payment
+            // let mut dao_token_ref = DaoTokenRef(self.token.clone());
+            // dao_token_ref.mint(dev_address, amount);
+
+            // DaoTokenRef::mint(&self.token, dev_address, amount);            
+            // release payment
             self.env().transfer(caller, amount).unwrap()
         }
     }
@@ -128,8 +122,8 @@ mod contribution_pool {
         // #[ink(constructor)]
         pub fn new(registeration_contract_id: AccountId, token_id: AccountId) -> Self {
             let mut instance = Self::default();
-            instance.registration_contract = Some(registeration_contract_id.into());
-            instance.token = Some(token_id.into());
+            instance.registration_contract = registeration_contract_id.into();
+            instance.token = token_id.into();
             instance
         }
 
@@ -139,8 +133,8 @@ mod contribution_pool {
         #[ink(constructor)]
         pub fn default() -> Self {
             Self {
-                registration_contract: None,
-                token: None,
+                registration_contract: AccountId::from([0x0; 32]),
+                token: AccountId::from([0x0; 32]),
                 assigned_req_id: 0,
                 counter: 0,
                 creator_listings: Mapping::new(),

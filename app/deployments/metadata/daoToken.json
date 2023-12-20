@@ -1,0 +1,616 @@
+{"address": "",
+ "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "label": "name",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "label": "symbol",
+            "type": {
+              "displayName": [
+                "Option"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "label": "decimal",
+            "type": {
+              "displayName": [
+                "u8"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "new",
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink_primitives",
+            "ConstructorResult"
+          ],
+          "type": 6
+        },
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "environment": {
+      "accountId": {
+        "displayName": [
+          "AccountId"
+        ],
+        "type": 8
+      },
+      "balance": {
+        "displayName": [
+          "Balance"
+        ],
+        "type": 0
+      },
+      "blockNumber": {
+        "displayName": [
+          "BlockNumber"
+        ],
+        "type": 1
+      },
+      "chainExtension": {
+        "displayName": [
+          "ChainExtension"
+        ],
+        "type": 27
+      },
+      "hash": {
+        "displayName": [
+          "Hash"
+        ],
+        "type": 26
+      },
+      "maxEventTopics": 4,
+      "timestamp": {
+        "displayName": [
+          "Timestamp"
+        ],
+        "type": 14
+      }
+    },
+    "events": [],
+    "lang_error": {
+      "displayName": [
+        "ink",
+        "LangError"
+      ],
+      "type": 7
+    },
+    "messages": [
+      {
+        "args": [
+          {
+            "label": "spender",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "DecreaseAllowanceInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "delta_value",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "DecreaseAllowanceInput2"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::decrease_allowance",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 10
+        },
+        "selector": "0xfecb57d5"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::total_supply",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 15
+        },
+        "selector": "0x162df8c2"
+      },
+      {
+        "args": [
+          {
+            "label": "owner",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "AllowanceInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "spender",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "AllowanceInput2"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::allowance",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 15
+        },
+        "selector": "0x4d47d921"
+      },
+      {
+        "args": [
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "value",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferInput2"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "data",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferInput3"
+              ],
+              "type": 16
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::transfer",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 10
+        },
+        "selector": "0xdb20f9f5"
+      },
+      {
+        "args": [
+          {
+            "label": "owner",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "BalanceOfInput1"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::balance_of",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 15
+        },
+        "selector": "0x6568382f"
+      },
+      {
+        "args": [
+          {
+            "label": "from",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferFromInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferFromInput2"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "value",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferFromInput3"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "data",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "TransferFromInput4"
+              ],
+              "type": 16
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::transfer_from",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 10
+        },
+        "selector": "0x54b3c76e"
+      },
+      {
+        "args": [
+          {
+            "label": "spender",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "IncreaseAllowanceInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "delta_value",
+            "type": {
+              "displayName": [
+                "psp22_external",
+                "IncreaseAllowanceInput2"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22::increase_allowance",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 10
+        },
+        "selector": "0x96d6b57a"
+      },
+      {
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "RevokeRoleInput1"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "RevokeRoleInput2"
+              ],
+              "type": 17
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "AccessControl::revoke_role",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 18
+        },
+        "selector": "0x6e4f0991"
+      },
+      {
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "RenounceRoleInput1"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "RenounceRoleInput2"
+              ],
+              "type": 17
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "AccessControl::renounce_role",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 18
+        },
+        "selector": "0xeaf1248a"
+      },
+      {
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "GrantRoleInput1"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "GrantRoleInput2"
+              ],
+              "type": 17
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "AccessControl::grant_role",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 18
+        },
+        "selector": "0x4ac062fd"
+      },
+      {
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "HasRoleInput1"
+              ],
+              "type": 1
+            }
+          },
+          {
+            "label": "address",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "HasRoleInput2"
+              ],
+              "type": 17
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "AccessControl::has_role",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 21
+        },
+        "selector": "0xc1d9ac18"
+      },
+      {
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "displayName": [
+                "accesscontrol_external",
+                "GetRoleAdminInput1"
+              ],
+              "type": 1
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "AccessControl::get_role_admin",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 23
+        },
+        "selector": "0x83da3bb2"
+      },
+      {
+        "args": [
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "psp22mintable_external",
+                "MintInput1"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "psp22mintable_external",
+                "MintInput2"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "PSP22Mintable::mint",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 10
+        },
+        "selector": "0xfc3c75d4"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "PSP22Metadata::token_symbol",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x34205be5"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "PSP22Metadata::token_decimals",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 25
+        },
+        "selector": "0x7271b782"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "PSP22Metadata::token_name",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x3d261bd4"
+      }
+    ]
+  }}

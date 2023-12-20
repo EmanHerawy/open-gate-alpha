@@ -13,10 +13,10 @@ use openbrush::traits::String;
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
-    #[derive(Storage)]
+   #[derive(Default, Storage)]
     pub struct Registration {
         /// Stores a single `bool` value on the storage.
-        dao_token: AccountId,
+        dao_token: Option<AccountId>,
         #[storage_field]
         ownable: ownable::Data,
         treasury_wallet: Option<AccountId>,
@@ -63,7 +63,7 @@ pub type RegistrationContractRef = dyn RegistrationTrait + Ownable;
         fn join_as_open_source_project_creator(&mut self, github: String) {
             let caller = Self::env().caller();
             // check that the OS has enough tokens
-            let balance = DaoRef::balance_of(&self.dao_token,caller);
+            let balance = DaoRef::balance_of(&self.dao_token.unwrap(),caller);
             if balance < 1000 {
                 panic!("Not enough tokens to register as a project creator");
             }
@@ -102,27 +102,12 @@ pub type RegistrationContractRef = dyn RegistrationTrait + Ownable;
         pub fn new(wallet: Option<AccountId>, token: Option<AccountId>) -> Self {
             let mut instance = Self::default();
             ownable::Internal::_init_with_owner(&mut instance, Self::env().caller());
-            match token {
-                Some(token) => {
-                    instance.dao_token = token.into();
-                }
-                None => {
-                    // create a new token
-                    // let token = DaoToken::new(None, None, 18);
-                    // instance.dao_token = ink::contract_ref!(token);
-                }
-            }
+           instance.dao_token = token;
             instance.treasury_wallet = wallet;
             instance
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(None, None)
-        }
+ 
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`

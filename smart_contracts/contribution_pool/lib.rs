@@ -37,10 +37,11 @@ use ink::prelude::string::String;
     /// Add new fields to the below struct in order
     /// to add new static storage fields to your contract.
     #[ink(storage)]
+   #[derive(Default)]
     pub struct ContributionPool {
         /// Stores a single `bool` value on the storage.
-       registration_contract: AccountId, //* */
-        token:  AccountId, //* */
+       registration_contract: Option<AccountId>, //* */
+        token:  Option<AccountId>, //* */
         assigned_req_id: u64,                          //* */
         counter: u64,                                  //* */
         creator_listings: Mapping<AccountId, Listing>, //* */
@@ -59,7 +60,7 @@ use ink::prelude::string::String;
         fn list_repo(&mut self, github_repo: String, payable_amount: u64) {
             let caller = Self::env().caller();
             // check if caller is registered
-            let is_registered =RegistrationContractRef::is_project_creator_registered(&self.registration_contract,caller);
+            let is_registered =RegistrationContractRef::is_project_creator_registered(&self.registration_contract.unwrap(),caller);
             
  
             assert!(is_registered);
@@ -85,7 +86,7 @@ use ink::prelude::string::String;
             let listing = self.creator_listings.get(&caller).unwrap();
             // make sure that the remaining amount is more than the requested amount
             assert!(listing.current_deposit >= u128::from(listing.payable_amount));
-            let creator_address = RegistrationContractRef::get_address(&self.registration_contract, repo).unwrap();
+            let creator_address = RegistrationContractRef::get_address(&self.registration_contract.unwrap(), repo).unwrap();
           
             let request_id = self.assigned_req_id;
             self.assigned_req_id += 1;
@@ -103,7 +104,7 @@ use ink::prelude::string::String;
             let caller = Self::env().caller();
             let listing = self.creator_listings.get(&caller).unwrap();
             //get address of github handle
-            let dev_address = RegistrationContractRef::get_address(&self.registration_contract, login).unwrap();
+            let dev_address = RegistrationContractRef::get_address(&self.registration_contract.unwrap(), login).unwrap();
             // make sure that the remaining amount is more than the requested amount
             assert!(listing.current_deposit >= u128::from(listing.payable_amount));
             // make the github issue as done
@@ -119,22 +120,11 @@ use ink::prelude::string::String;
     }
     impl ContributionPool {
         /// Constructor that initializes the `bool` value to the given `init_value`.
-        // #[ink(constructor)]
-        pub fn new(registeration_contract_id: AccountId, token_id: AccountId) -> Self {
-            let mut instance = Self::default();
-            instance.registration_contract = registeration_contract_id.into();
-            instance.token = token_id.into();
-            instance
-        }
-
-        // /// Constructor that initializes the `bool` value to `false`.
-        // ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self {
-                registration_contract: AccountId::from([0x0; 32]),
-                token: AccountId::from([0x0; 32]),
+         #[ink(constructor)]
+        pub fn new(registeration_contract_id: Option<AccountId>, token_id: Option<AccountId>) -> Self {
+            let mut instance =Self {
+                registration_contract:registeration_contract_id,
+                token: token_id,
                 assigned_req_id: 0,
                 counter: 0,
                 creator_listings: Mapping::new(),
@@ -145,7 +135,11 @@ use ink::prelude::string::String;
                 used_requests: Mapping::new(),
                 github_to_creator_address: Mapping::new(),
                 // listing_id_to_creator: Mapping::new(),
-            }
+            };
+           
+            instance
         }
+
+
     }
 }

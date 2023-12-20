@@ -67,16 +67,6 @@ pub type DaoRef = dyn  PSP22 + PSP22Mintable +  PSP22Metadata + AccessControl;
             _instance
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(
-                Some(String::from("DaoToken")),
-                Some(String::from("DAO")),
-                18,
-            )
-        }
+      
     }
 }

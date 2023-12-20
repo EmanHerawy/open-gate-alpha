@@ -104,7 +104,7 @@ npm run dev
 ```
 **build the contract**
 ```bash
-forc build
+cargo contract build --release
 ```
 
 

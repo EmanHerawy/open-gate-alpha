@@ -10,28 +10,12 @@ import ConnectWallet from './ConnectWallet'
 import DeveloperLoginModal from './DeveloperLoginModal'
 import OrganizationLoginModal from './OrganizationLoginModal'
 import { useSession } from 'next-auth/react'
+import { useWallet, useAllWallets } from 'useink';
 
- import {
-  SubstrateChain,
-  SubstrateWalletPlatform,
-  allSubstrateWallets,
-  getSubstrateChain,
-  isWalletInstalled,
-  useBalance,
-  useInkathon,
-} from '@scio-labs/use-inkathon'
 export default function Topbar() {
   const { data: session } = useSession()
-   const {
-    activeChain,
-    switchActiveChain,
-    connect,
-    disconnect,
-    isConnecting,
-    activeAccount,
-    accounts,
-    setActiveAccount,
-  } = useInkathon()
+  const { account, connect, disconnect } = useWallet()
+  const wallets = useAllWallets();
 
   const [open, setOpen] = useState(false)
   const handleOpen = () => setOpen(true)
@@ -51,7 +35,7 @@ export default function Topbar() {
 
         <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}></Box>
 
-        {session && activeAccount ? (
+        {session && account ? (
           <>
             <ConnectWallet />
             <GithubLogin />

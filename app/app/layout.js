@@ -8,8 +8,8 @@ import ThemeRegistry from '@/components/ThemeRegistry/ThemeRegistry'
 import Sidebar from '@/components/Sidebar'
 import Topbar from '@/components/Topbar'
 import { SessionProvider } from 'next-auth/react'
- import { alephzeroTestnet, UseInkathonProvider } from '@scio-labs/use-inkathon'
- 
+import { UseInkProvider } from 'useink';
+import { AlephTestnet, RococoContractsTestnet, ShibuyaTestnet } from 'useink/chains';
 // export const metadata = {
 //   title: 'Open Gate',
 //   description: 'Open Gate',
@@ -23,7 +23,11 @@ export default function RootLayout({ children, session }) {
       <body>
         <SessionProvider session={session}>
           <ThemeRegistry>
-            <UseInkathonProvider appName="My dApp" defaultChain={alephzeroTestnet}>
+            <UseInkProvider config={{
+              dappName: 'Open Gate',
+              chains: [RococoContractsTestnet, ShibuyaTestnet, AlephTestnet],
+            }}
+>
 
 
               <Topbar />
@@ -41,7 +45,7 @@ export default function RootLayout({ children, session }) {
               >
                 {children}
               </Box>
-            </UseInkathonProvider>
+            </UseInkProvider>
           </ThemeRegistry>
         </SessionProvider>
       </body>

@@ -140,23 +140,20 @@ cargo contract build --release
 ## Deployed contracts 
 > Contract dao_token Deployed!
 
-    Network:  
-    Contract ID: 0x60245c4b9dce24af257b7e83844fb037f83def447fe77d6e16cec06948e0ab0c
-    Deployed in block 0x33a82764a84f75f6c1c25cfb76c6a7da61d900b7f7e3d92fe4dd6b3b60939e37
-
+    Network:  Alpha Zero Testnet
+    Contract ID: 5Cifnx8FDAZFHwfgqo1GBp7ArCqCLaWAPwFFH2z1iHYRw6Bn
+ 
 
 > Contract registration Deployed!
 
-    Network: 
-    Contract ID:  
-    Deployed in block  
-
+    Network: Alpha Zero Testnet
+    Contract ID:  5G2oMVjPfb66uT35gcqFZkecGHEMJf25oarhctUNGMiFj4K3
+ 
 > Contract contribution_pool Deployed!
 
-    Network: 
-    Contract ID:  
-    Deployed in block  
-## License
+    Network: Alpha Zero Testnet
+    Contract ID:  5FUC8jwcYtU5WkrMwk9sJnFFBkes3of3hCNcTLrCUL2rYToy
+ ## License
 
 MIT
 
